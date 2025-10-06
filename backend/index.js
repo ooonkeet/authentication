@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import connectDB from './config/db.js';
 import {createClient} from 'redis'
 import cookieParser from 'cookie-parser';
+import cors from 'cors'
 dotenv.config();
 await connectDB()
 const redisUrl = process.env.REDIS_URL
@@ -17,6 +18,11 @@ redisClient.connect().then(()=>console.log("Connected to redis")).catch(console.
 const app=express();
 app.use(express.json())
 app.use(cookieParser())
+app.use(cors({
+    origin:process.env.FRONTEND_URL,
+    credentials:true,
+    methods:['GET','POST','PUT','DELETE', 'OPTIONS'],
+}))
 import userRoutes from './routes/user.js'
 app.use('/api/v1',userRoutes)
 const PORT=process.env.PORT||5000;
