@@ -10,6 +10,7 @@ import sendMail from "../config/sendMail.js";
 import { generateAccessToken, generateToken,revokeRefreshToken,verifyRefreshToken } from "../config/generateToken.js";
 import { tr } from "zod/v4/locales";
 import { generateCSRFToken } from "../config/csrfMiddleware.js";
+import { decode } from "punycode";
 export const registerUser = trycatch(async (req, res) => {
     const sanitizedBody=sanitize(req.body);
     const validation=registerSchema.safeParse(sanitizedBody);
@@ -137,12 +138,29 @@ export const verifyUser=trycatch(async(req,res)=>{
         res.status(200).json({
             message: `Welcome ${user.name}`,
             user,
+            sessionInfo:{
+                sessionId:tokenData.sessionId,
+                loginTime:new Date().toISOString(),
+                csrfToken:tokenData.csrfToken,
+            }
         })
     })
 
     export const myProfile=trycatch(async(req,res)=>{
         const user=req.user
-        res.json(user)
+        const sessionId=req.sessionId
+        const sessionData=await redisClient.get(`session:${sessionId}`)
+        let sessionInfo=null
+        if(sessionData){
+            const parsedSession=JSON.parse(sessionData)
+            sessionInfo={
+            sessionId,
+            loginTime: parsedSession.createdAt,
+            lastActivity: parsedSession.lastActivity,
+            }
+            
+        }
+        res.json({user,sessionInfo})
     })
 
     export const refreshToken=trycatch(async(req,res)=>{
@@ -154,11 +172,15 @@ export const verifyUser=trycatch(async(req,res)=>{
         }
         const decodedData=await verifyRefreshToken(refreshToken)
         if(!decodedData){
+            res.clearCookie("refreshToken")
+            res.clearCookie("accessToken")
+            res.clearCookie("csrfToken")
+
             return res.status(401).json({
-                message: "Invalid refresh token"
+                message: "Session Expired. Please login again."
             })
         }
-        generateAccessToken(decodedData.id,res)
+        generateAccessToken(decodedData.id,decodedData.sessionId,res)
         res.status(200).json({
             message:"Token refreshed successfully"
         })

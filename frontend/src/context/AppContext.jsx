@@ -17,11 +17,13 @@ export const AppProvider = ({children})=>{
                 // withCredentials:true
             })
             setIsAuth(true)
-            setUser(data)
+            setUser(data.user)
             
             
         } catch (error) {
             console.log(error);
+            setUser(null)
+            setIsAuth(false)
             
         }finally{
             setLoading(false)
