@@ -180,3 +180,8 @@ export const verifyUser=trycatch(async(req,res)=>{
             csrfToken: newCSRFToken
         })
     })
+export const adminController=trycatch(async(req,res)=>{
+    res.json({
+        message:"Hello Admin",
+    })
+})

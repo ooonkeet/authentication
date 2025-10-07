@@ -8,6 +8,7 @@ import { AppData } from './context/AppContext'
 import Loading from './Loading'
 import Register from './pages/Register'
 import Verify from './pages/Verify'
+import Dashboard from './pages/Dashboard'
 const App = () => {
   const {isAuth,loading} = AppData()
   return <>
@@ -18,6 +19,7 @@ const App = () => {
     <Route path='/register' element={isAuth?<Home/>:<Register/>}/>
     <Route path='/verifyotp' element={isAuth?<Home/>:<VerifyOTP/>}/>
     <Route path='/token/:token' element={isAuth?<Home/>:<Verify/>}/>
+    <Route path='/dashboard' element={isAuth?<Dashboard/>:<Login/>}/>
     
   </Routes>
   <ToastContainer/>
