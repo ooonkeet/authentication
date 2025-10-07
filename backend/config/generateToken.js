@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { redisClient } from '../index.js'
+import { generateCSRFToken, revokeCSRFToken } from './csrfMiddleware.js'
 export const generateToken=async(id,res)=>{
     const accessToken=jwt.sign({id},process.env.JWT_SECRET,{
         expiresIn:"1m",
@@ -21,7 +22,8 @@ export const generateToken=async(id,res)=>{
         secure:true,
         sameSite:"none",
     })
-    return {accessToken,refreshToken}
+    const csrfToken = await generateCSRFToken(id,res)
+    return {accessToken,refreshToken,csrfToken}
 }
 export const verifyRefreshToken=async(refreshToken)=>{
     try{
@@ -42,10 +44,11 @@ export const generateAccessToken=(id,res)=>{
     res.cookie("accessToken",accessToken,{
         httpOnly:true,
         secure:true,
-        sameSite:"strict",
+        sameSite:"none",
         maxAge:1*60*1000,
     })
 }
 export const revokeRefreshToken= async(userId)=>{
     await redisClient.del(`refresh:${userId}`)
+    await revokeCSRFToken()
 }

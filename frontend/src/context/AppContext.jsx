@@ -3,7 +3,7 @@ import { createContext } from "react";
 // import axios from "axios";
 import {server} from '../main'
 import { useContext } from "react";
-import api from "../apiIntercepter";
+import api from "../apiIntercepter.js";
 import { toast } from "react-toastify";
 const AppContext=createContext(null)
 export const AppProvider = ({children})=>{
@@ -16,9 +16,10 @@ export const AppProvider = ({children})=>{
             const {data} = await api.get(`api/v1/me`,{
                 // withCredentials:true
             })
+            setIsAuth(true)
             setUser(data)
             
-            setIsAuth(true)
+            
         } catch (error) {
             console.log(error);
             
@@ -26,11 +27,12 @@ export const AppProvider = ({children})=>{
             setLoading(false)
         }
     }
-    async function logoutUser() {
+    async function logoutUser(navigate) {
         try {
             const {data} = await api.post(`api/v1/logout`)
             toast.success(data.message)
             setUser(null)
+            navigate("/login")
             setIsAuth(false)
         } catch (error) {
             toast.error("Something went wrong")

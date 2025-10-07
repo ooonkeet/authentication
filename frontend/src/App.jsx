@@ -6,6 +6,8 @@ import { ToastContainer } from 'react-toastify'
 import VerifyOTP from './pages/VerifyOTP'
 import { AppData } from './context/AppContext'
 import Loading from './Loading'
+import Register from './pages/Register'
+import Verify from './pages/Verify'
 const App = () => {
   const {isAuth,loading} = AppData()
   return <>
@@ -13,7 +15,10 @@ const App = () => {
   <Routes>
     <Route path='/' element={isAuth?<Home/>:<Login/>}/>
     <Route path='/login' element={isAuth?<Home/>:<Login/>}/>
+    <Route path='/register' element={isAuth?<Home/>:<Register/>}/>
     <Route path='/verifyotp' element={isAuth?<Home/>:<VerifyOTP/>}/>
+    <Route path='/token/:token' element={isAuth?<Home/>:<Verify/>}/>
+    
   </Routes>
   <ToastContainer/>
   </BrowserRouter>)}
